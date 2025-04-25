@@ -1,4 +1,4 @@
-﻿# 8. gyakorlat
+# 8. gyakorlat
 
 ## Előkészületek
 
@@ -12,25 +12,21 @@ A megoldásokat - ahol kódot kell írni - másoljuk be a ```js és a ``` közö
 
 
 ## Feladatok
-
-
 1.	Lépjen be a MongoPlayground oldalára, majd a melléklet 1. pontjában szereplő gyűjteményt másolja be a Configuration részbe!
 a Készítsen lekérdezést, amely csak az user_id, firstName és lastname oszlopokat jeleníti meg!
 
 ```js
-
+db.mellekletek.find({},{"user_id":1,"firstName": 1, "lastname": 1})
 ```
-
 
 2.	A MongoPlayground-on az előző feladatban létrehozott gyűjteményből kérdezze le a Grace keresztnevű felhasználó email-címét és jelszavát (csak ez a két mező jelenjen meg)!
 
 ```js
-
+db.mellekletek.find({"firstName": "Grace"}, {"email": 1,"password": 1})
 ```
 
-
 3. Lépjen be a MongoDB Atlas-ba, majd értelemszerűen hozzon létre új szervezetet, projektet és cluster-t! Válasszuk a **Free** lehetőséget!
-   
+
 a. A Load sample Dataset lehetőség legyen bejelölve    (A dataset betöltése több percet is igénybe vehet)
 b. Kattintson a Browse Collections gombra!
 c. Ha nem jelenik meg a sample_training adatbázis, akkor a MongoDB Compass-ban hozzuk létre, és importáljuk a grades.json és a trips.json gyűjteményeket!
@@ -41,9 +37,8 @@ OPCIONÁLISAN: a feladat a MongoDB Compass-ból vagy a VS Code-ból kiidulva is 
 
 a. A listában csak azok a dokumentumok jelenjenek meg, ahol a tanuló azonosítója 100 alatt van!
 
-   
 ```js
-
+   db.grades.find({"class_id": 339, "student_id": {$lt: 100}})
 ```
 
 OPCIONÁLISAN: a feladat a MongoDB Compass-ban, a VS Code-ban vagy a MongoDB Shell-ben is megoldható
@@ -57,9 +52,19 @@ d. Az evfolyam egész szám legyen (Int32)
 
 OPCIONÁLISAN: a feladat a MongoDB Compass-ban, a VS Code-ban vagy a MongoDB Shell-ben is megoldható
 
+```js
+db.szemelyek.insertOne({
+    "neptunkod": "W1C4GQ",
+    "nev":
+        {
+            "vezeteknev": "Dobó",
+            "keresztnev": "Heléna Lilla"
+        },
+    "evfolyam": 1
+})
+```
 
 6. Indítsa el a MongoDB Compass alkalmazást, majd csatlakozzon a MongoDB cluster-hez! 
-
 
 Ha korábban sikerült a kapcsolódás, akkor baloldalt a Recent részben kiválaszthatja a kapcsolatot
 Sikertelen kapcsolat esetén a baloldalon lévő Network Access részben adja hozzá az aktuális IP-címét a tűzfal kivételekhez!
@@ -76,10 +81,7 @@ b.  A lista legyen sorbarendezve a főzési idő szerint csökkenő sorrendben! 
 c. A listában ne jelenjenek meg az ingredients és a rating mezők (Project szakasznál kell beállítani)!
 
 ```js
-db.receptek.find(
-{"likes_count": {$gte: 2}},
-{"ingredients":0, "rating":0}
-).sort({"cook_time": -1})
+    db.receptek.find({"likes_count": {$gt: 2}},{"ingredients":0,"ratings":0}).sort("cook_time": -1)
 ```
 
 OPCIONÁLISAN: a feladat a VS Code-ban vagy a MongoDB Shell-ben is megoldható
@@ -87,16 +89,18 @@ OPCIONÁLISAN: a feladat a VS Code-ban vagy a MongoDB Shell-ben is megoldható
 8. Az előző feladatban létrehozott lekérdezésre hajtsa végre az Explain Plan funkciót!
 
 ```js
-
+    db.receptek.find({"likes_count": {$gt: 2}},{"ingredients":0,"ratings":0}).sort("cook_time": -1).explain("executionStats")
 ```
 
 OPCIONÁLISAN: a feladat a VS Code-ban vagy a MongoDB Shell-ben is megoldható
 
-1. A MongoDB Compass-ban készítsen új indexet a 7. feladatban importált receptek gyűjteményhez az Indexes rész Create Index funkciójának segítségével!
-
-
+9. A MongoDB Compass-ban készítsen új indexet a 7. feladatban importált receptek gyűjteményhez az Indexes rész Create Index funkciójának segítségével!
 a. Az index neve legyen i_title, és a title mező szerint csökkenő legyen
 b. Az index  egyedi (unique) legyen (Options rész)!
+
+```js
+db.receptek.createIndex({title: -1}, {name: "i_title", unique: true})
+```
 
 OPCIONÁLISAN: a feladat a VS Code-ban vagy a MongoDB Shell-ben is megoldható
 
@@ -105,19 +109,15 @@ a. Adjuk ki a show dbs parancsot!
 b. Csatlakozzunk a gyak_compass adatbázishoz!
 
 ```js
-
+    show dbs
+    use gyak_08
 ```
 
 11. A mongo shellben kérdezzük le, hogy a receptek gyűjteményben mely dokumentumoknál szerepel a recept nevében (title) a Tacos szó!
-
 a. A megjelenés kellően szép (json-szerű) legyen!
 
-
 ```js
-db.receptek.find(
-{"title": {$regex: /Tacos/}}
-).pretty()
-
+db.receptek.find({"title": /Tacos/i}).pretty()
 ```
 OPCIONÁLISAN: a feladat a MongoDB Compass-ban, vagy a VS Code-ban is megoldható
 
@@ -125,15 +125,12 @@ OPCIONÁLISAN: a feladat a MongoDB Compass-ban, vagy a VS Code-ban is megoldhat�
 
 ```js
 db.receptek.aggregate([
-  {
-		"$group":
-    {_id: "$type",
-		total: {"$sum": "$cook_time"}}
-	}
+    {"$group": {_id: "$type",
+                total: {$sum: "cook_time"}
+    }}
 ])
 ```
 OPCIONÁLISAN: a feladat a MongoDB Compass-ban, vagy a VS Code-ban is megoldható
-
 
 13. A mongo shell-ben kérdezzük le, hogy a receptek gyűjteményben hány olyan dokumentum van, ahol:
 
@@ -142,6 +139,14 @@ b. A tag-ek között szerepel a "quick" vagy az "easy" (legalább az egyik)
 
 
 ```js
+db.receptek.aggregate([
+    {
+        "$match": {"servings": 4,
+                "tags": {$in: ["quick","easy"]}
+        }
+    },
+    {"$count": "receptek_szama"}
+])
 
 ```
 
@@ -150,7 +155,9 @@ OPCIONÁLISAN: a feladat a MongoDB Compass-ban, vagy a VS Code-ban is megoldhat�
 14. A mongo shell-ben a receptek gyűjteményben a ObjectId("5e878f5220a4f574c0aa56db") azonosítójú dokumentum esetén módosítsuk a főzési időt (cook_time) 33 percre!
 
 ```js
-
+    db.receptek.updateOne(
+    {"_id":ObjectId("5e878f5220a4f574c0aa56db")},
+    { $set: {"cook_time":33}})
 ```
 
 OPCIONÁLISAN: a feladat a MongoDB Compass-ban, vagy a VS Code-ban is megoldható
@@ -159,7 +166,10 @@ OPCIONÁLISAN: a feladat a MongoDB Compass-ban, vagy a VS Code-ban is megoldhat�
 
 
 ```js
-
+    db.receptek.updateOne(
+        {"_id": ObjectId("5e5e9c470d33e9e8e3891b35")},
+        {$push: {"likes": 200}}
+    )
 ```
 
 OPCIONÁLISAN: a feladat a MongoDB Compass-ban, vagy a VS Code-ban is megoldható
