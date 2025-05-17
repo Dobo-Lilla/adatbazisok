@@ -1,0 +1,28 @@
+Labdarúgó-bajnokság adatbázis
+
+Ez az adatbázis egy teljeskörű nyilvántartási rendszer a hazai labdarúgó-bajnokságok számára. Tartalmazza az összes csapatot, játékost, stadiont, játékvezetőt, valamint a mérkőzéseket azok gól- és lapadataival együtt. A felépítés lehetővé teszi a szezonok, klubmozgások és teljesítmények részletes követését, így pontos képet kaphatunk az egyes klubok működéséről és a bajnokság alakulásáról. A modell valósághű adatokkal dolgozik, ezért kiválóan használható sportelemzésre, versenyzői nyomon követésre és döntéstámogatásra is. Ha a célunk a klubfutball működésének átláthatóbbá tétele és a stratégiai tervezés támogatása, ez az adatbázis ehhez ideális alapot nyújt.
+
+Az adatbázis a következő elemekből áll:
+
+Logikai adatmodell – kapcsolati diagram (SVG formátumban)
+
+Fizikai adatmodell – SQL fájl az adattáblák létrehozásával, kulcsokkal, kényszerekkel
+
+Tesztadatok – stadionok, játékosok, csapatok, mérkőzések stb. feltöltése
+
+Lekérdezések 
+
+
+Táblák
+Legalább 10 reláció szerepel az adatbázisban, köztük:
+
+Bajnoksag, Csapatok, Jatekosok
+
+Merkozesek, Stadionok, Jatekvezetok
+
+Golok, Lapok, Atigazolasok
+
+Minden tábla 3NF-re van normalizálva, a kulcsok és kapcsolatok egyértelműen kialakítottak.
+
+
+
